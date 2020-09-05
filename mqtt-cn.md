@@ -97,13 +97,9 @@ client.on('message', function (topic, message) {
 Hello mqtt
 ```
 
-如果你想运行自己的 MQTT 服务端 (broker), 你可以使用
-[Mosquitto](http://mosquitto.org) 或者
-[Mosca](http://mcollina.github.io/mosca/)。
-你也可以使用公共的测试实例: test.mosquitto.org 和 test.mosca.io。
+如果你想运行自己的 MQTT 服务端 (broker), 你可以使用 [Mosquitto](http://mosquitto.org) 或者[Mosca](http://mcollina.github.io/mosca/)。你也可以使用公共的测试实例: test.mosquitto.org 和 test.mosca.io。
 
-如果想要装载一个独立的服务端，你可以尝试
-[mqtt-connection](https://www.npmjs.com/package/mqtt-connection)。
+如果想要装载一个独立的服务端，你可以尝试 [mqtt-connection](https://www.npmjs.com/package/mqtt-connection)。
 
 在浏览器中使用 MQTT.js，详细说明： [browserify](#browserify)
 
@@ -222,7 +218,7 @@ You can also specify a `servers` options with content: `[{ host:
 'localhost', port: 1883 }, ... ]`, in that case that array is iterated
 at every connect.
 
-你也可以通过：`[{ host:'localhost', port: 1883 }, ... ]` 指明一个 `servers` 的选项，那种情况下每个连接都会进行数组遍历。
+你也可以通过以下内容：`[{ host:'localhost', port: 1883 }, ... ]` 指明一个 `servers` 的选项，那种情况下每个连接都会进行数组遍历。
 
 所有与MQTT相关的选项，参考 [Client](#client) 的构造函数
 
@@ -230,26 +226,20 @@ at every connect.
 <a name="client"></a>
 ### mqtt.Client(streamBuilder, options)
 
-The `Client` class wraps a client connection to an
-MQTT broker over an arbitrary transport method (TCP, TLS,
-WebSocket, ecc).
-
-类 `Client` 包装了一个基于专门通信协议 (TCP, TLS,
-WebSocket, 等) 的客户-服务端 (broker) 连接。
+类 `Client` 包装了一个基于专门通信协议 (TCP, TLS, WebSocket, 等) 的客户-服务端 (broker) 连接。
 
 `Client` 自动处理了以下内容：
 
-* TODO: Regular server pings
+* Regular server pings
 * QoS 流
 * 自动重连
 * 连接前的消息发布
 
 参数：
 
-* `streamBuilder` 方法返回 `Stream` 的派生类，支持 `connect` 事件。通常为 `net.Socket`.
+* `streamBuilder` 方法返回 `Stream` 的派生类，支持 `connect` 事件。通常为 `net.Socket`
 * `options` 为客户端连接选项 (见 [connect packet](https://github.com/mcollina/mqtt-packet#connect))
-  * `wsOptions`: WebSocket连接选项. 默认情况是 `{}`
-     只适用于 WebSockets。可选项可参考：https://github.com/websockets/ws/blob/master/doc/ws.md.
+  * `wsOptions`: WebSocket连接选项，默认情况是 `{}`，只适用于 WebSockets，可选项可参考：https://github.com/websockets/ws/blob/master/doc/ws.md.
   * `keepalive`: `60` 秒，设为 `0` 可禁止
   * `reschedulePings`: reschedule ping messages after sending packets (default `true`)
   * `clientId`: `'mqttjs_' + Math.random().toString(16).substr(2, 8)`
@@ -260,10 +250,10 @@ WebSocket, 等) 的客户-服务端 (broker) 连接。
   * `connectTimeout`: `30 * 1000` 毫秒，在收到一个 CONNACK 前的等待时间
   * `username`: 服务端 (broker) 需要的用户名，可选
   * `password`: 服务端 (broker) 需要的密码，可选
-  * `incomingStore`: FIXME: 存储接收中的包的 [Store](#store)
-  * `outgoingStore`: FIXME: 存储发送中的包的 [Store](#store)
-  * `queueQoSZero`: 如果连接已销毁，将发送中的包组成队（默认 `true`）
-  * `customHandleAcks`: TODO: MQTT 5 feature of custom handling puback and pubrec packets. Its callback:
+  * `incomingStore`: 存储接收中的包的 [Store](#store)
+  * `outgoingStore`: 存储发送中的包的 [Store](#store)
+  * `queueQoSZero`: 如果连接已销毁，将发送中的包组成队列（默认 `true`）
+  * `customHandleAcks`: MQTT 5 feature of custom handling puback and pubrec packets. Its callback:
       ```js
         customHandleAcks: function(topic, message, packet, done) {/*some logic wit colling done(error, reasonCode)*/}
       ```
@@ -323,9 +313,7 @@ version 1.3 and 1.4 works fine without those.
 `function (connack) {}`
 
 连接/重连接成功后触发 (i.e. connack rc=0).
-* `connack` 接收到的消息确认包（connack packet）。当清除连接标记（`clean`）为 `false` 且服务器
-for `clientId` connection option, then `connack.sessionPresent` flag is `true`. When that is the case,
-you may rely on stored session and prefer not to send subscribe commands for the client.
+* `connack` 接收到的消息确认包（connack packet）。若清除标记（`clean`）为 `false` 且服务器存在该 `clientId` 的会话（session）连接选项，标志 `connack.sessionPresent` 将会为 `true`。When that is the case, you may rely on stored session and prefer not to send subscribe commands for the client.
 
 #### 事件 `'reconnect'`
 
@@ -665,7 +653,7 @@ you can then use mqtt.js in the browser with the same api than node's one.
 </html>
 ```
 
-你的服务端（broker）应当对 websocket 连接进行处理 (参考 [MQTT over Websockets](https://github.com/mcollina/mosca/wiki/MQTT-over-Websockets) 以启动 [Mosca](http://mcollina.github.io/mosca/)).
+你的服务端（broker）应当对 websocket 连接进行相应处理 (参考 [MQTT over Websockets](https://github.com/mcollina/mosca/wiki/MQTT-over-Websockets) 以启动 [Mosca](http://mcollina.github.io/mosca/)).
 
 <a name="qos"></a>
 ## About QoS

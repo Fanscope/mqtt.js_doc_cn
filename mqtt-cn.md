@@ -111,27 +111,26 @@ Hello mqtt
 <a name="cli"></a>
 ## 命令行工具
 
-MQTT.js bundles a command to interact with a broker.
-In order to have it available on your path, you should install MQTT.js
-globally:
+MQTT.js 提供了与服务端（broker）交互的命令行指令。
+为了保证在您的目录下可用, 需要全局安装 mqtt.js：
 
 ```sh
 npm install mqtt -g
 ```
 
-Then, on one terminal
+然后，在一个终端（terminal）中：
 
 ```
 mqtt sub -t 'hello' -h 'test.mosquitto.org' -v
 ```
 
-On another
+另一个：
 
 ```
 mqtt pub -t 'hello' -h 'test.mosquitto.org' -m 'from MQTT.js'
 ```
 
-See `mqtt help <command>` for the command help.
+帮助文档请参考： `mqtt help <command>`
 
 <a name="debug"></a>
 ## Debug Logs
@@ -218,9 +217,9 @@ You can also specify a `servers` options with content: `[{ host:
 'localhost', port: 1883 }, ... ]`, in that case that array is iterated
 at every connect.
 
-你也可以通过以下内容：`[{ host:'localhost', port: 1883 }, ... ]` 指明一个 `servers` 的选项，那种情况下每个连接都会进行数组遍历。
+你也可以这样：`[{ host:'localhost', port: 1883 }, ... ]` 指明一个 `servers` 的选项，那种情况下每个连接都会进行数组遍历。
 
-所有与MQTT相关的选项，参考 [Client](#client) 的构造函数
+所有与MQTT相关的配置选项，参考 [Client](#client) 的构造函数
 
 -------------------------------------------------------
 <a name="client"></a>
@@ -406,8 +405,7 @@ version 1.3 and 1.4 works fine without those.
     * `subscriptionIdentifier`: representing the identifier of the subscription `number`,
     * `contentType`: String describing the content of the Application Message `string`
   * `cbStorePut` - `function ()`, 若 QoS 为 `1` 或 `2`，当消息被装入 `outgoingStore` 时触发
-* `callback` - `function (err)`, fired when the QoS handling completes,
-  or at the next tick if QoS 0. An error occurs if client is disconnecting.
+* `callback` - `function (err)`，在 QoS 处理结束后，或 QoS 为0的下一时间片（next tick）触发。 掉线时会抛一个异常。
 
 -------------------------------------------------------
 <a name="subscribe"></a>
@@ -415,12 +413,9 @@ version 1.3 and 1.4 works fine without those.
 
 订阅一个或多个主题
 
-* `topic` is a `String` topic to subscribe to or an `Array` of
-  topics to subscribe to. It can also be an object, it has as object
-  keys the topic name and as value the QoS, like `{'test1': {qos: 0}, 'test2': {qos: 1}}`.
-  MQTT `topic` wildcard characters are supported (`+` - for single level and `#` - for multi level)
-* `options` is the options to subscribe with, including:
-  * `qos` QoS subscription level, default 0
+* `topic` 为一个 `String` 类型的主题或若干个主题组成的 `Array`。也可以传入一个对象，其中键为主题，值为对应的QoS。例如 `{'test1': {qos: 0}, 'test2': {qos: 1}}`。MQTT `topic` 支持通配符 (`+` - for single level and `#` - for multi level)
+* `options` 订阅时的选项，包括：
+  * `qos` QoS 订阅级别, 默认 0
   * `nl` No Local MQTT 5.0 flag (If the value is true, Application Messages MUST NOT be forwarded to a connection with a ClientID equal to the ClientID of the publishing connection)
   * `rap` Retain as Published MQTT 5.0 flag (If true, Application Messages forwarded using this subscription keep the RETAIN flag they were published with. If false, Application Messages forwarded using this subscription have the RETAIN flag set to 0.)
   * `rh` Retain Handling MQTT 5.0 (This option specifies whether retained messages are sent when the subscription is established.)
@@ -438,10 +433,10 @@ version 1.3 and 1.4 works fine without those.
 <a name="unsubscribe"></a>
 ### mqtt.Client#unsubscribe(topic/topic array, [options], [callback])
 
-Unsubscribe from a topic or topics
+取消订阅一个或多个主题
 
-* `topic` is a `String` topic or an array of topics to unsubscribe from
-* `options`: options of unsubscribe.
+* `topic` 取消的主题字符串 `String` 或主题数组
+* `options`: 取消订阅时的选项
   * `properties`: `object`
       * `userProperties`: The User Property is allowed to appear multiple times to represent multiple name, value pairs `object`
 * `callback` - `function (err)`, fired on unsuback. An error occurs if client is disconnecting.
@@ -450,16 +445,14 @@ Unsubscribe from a topic or topics
 <a name="end"></a>
 ### mqtt.Client#end([force], [options], [cb])
 
-Close the client, accepts the following options:
+关闭客户端，支持以下配置：
 
-* `force`: passing it to true will close the client right away, without
-  waiting for the in-flight messages to be acked. This parameter is
-  optional.
-* `options`: options of disconnect.
-  * `reasonCode`: Disconnect Reason Code `number`
+* `force`: 可选参数，设为 `true` 时立即关闭客户端，不对传输中的包（packet）进行验证。
+* `options`: 离线选项。
+  * `reasonCode`: 离线的原因码 `number`
   * `properties`: `object`
-    * `sessionExpiryInterval`: representing the Session Expiry Interval in seconds `number`,
-    * `reasonString`: representing the reason for the disconnect `string`,
+    * `sessionExpiryInterval`: 表明会话（session）的过期周期，秒 `number`,
+    * `reasonString`: 离线原因 `string`,
     * `userProperties`: The User Property is allowed to appear multiple times to represent multiple name, value pairs `object`,
     * `serverReference`: String which can be used by the Client to identify another Server to use `string`
 * `cb`: will be called when the client is closed. This parameter is
@@ -469,18 +462,19 @@ Close the client, accepts the following options:
 <a name="removeOutgoingMessage"></a>
 ### mqtt.Client#removeOutgoingMessage(mid)
 
-Remove a message from the outgoingStore.
-The outgoing callback will be called with Error('Message removed') if the message is removed.
+在发送存储区（outgoingStore）中移除一个消息
 
-After this function is called, the messageId is released and becomes reusable.
+发送回调会在消息移除后以 Error('Message removed') 进行调用
 
-* `mid`: The messageId of the message in the outgoingStore.
+在此方法调用后，messageId 会被释放，并可重用
+
+* `mid`: 发送存储区中的 messageId
 
 -------------------------------------------------------
 <a name="reconnect"></a>
 ### mqtt.Client#reconnect()
 
-Connect again using the same options as connect()
+再次进行连接，和 connect() 参数一致
 
 -------------------------------------------------------
 <a name="handleMessage"></a>
@@ -494,48 +488,41 @@ will hang.
 <a name="connected"></a>
 ### mqtt.Client#connected
 
-Boolean : set to `true` if the client is connected. `false` otherwise.
+Boolean：已连接为 `true`，否则为 `false`
 
 -------------------------------------------------------
 <a name="getLastMessageId"></a>
 ### mqtt.Client#getLastMessageId()
 
-Number : get last message id. This is for sent messages only.
+Number：获取上一条已发送消息的 messageId
 
 -------------------------------------------------------
 <a name="reconnecting"></a>
 ### mqtt.Client#reconnecting
 
-Boolean : set to `true` if the client is trying to reconnect to the server. `false` otherwise.
+Boolean：正在连接服务端为 `true`，否则为 `false`
 
 -------------------------------------------------------
 <a name="store"></a>
 ### mqtt.Store(options)
 
-In-memory implementation of the message store.
+消息存储区的内存实现
 
-* `options` is the store options:
-  * `clean`: `true`, clean inflight messages when close is called (default `true`)
+* `options` 存储选项
+  * `clean`: 为 `true` 时，若 close 被调用，清除发送中的消息（默认 `true`）
 
-Other implementations of `mqtt.Store`:
+`mqtt.Store` 的其他实现：
 
-* [mqtt-level-store](http://npm.im/mqtt-level-store) which uses
-  [Level-browserify](http://npm.im/level-browserify) to store the inflight
-  data, making it usable both in Node and the Browser.
-* [mqtt-nedb-store](https://github.com/behrad/mqtt-nedb-store) which
-  uses [nedb](https://www.npmjs.com/package/nedb) to store the inflight
-  data.
-* [mqtt-localforage-store](http://npm.im/mqtt-localforage-store) which uses
-  [localForage](http://npm.im/localforage) to store the inflight
-  data, making it usable in the Browser without browserify.
+* [mqtt-level-store](http://npm.im/mqtt-level-store) which uses [Level-browserify](http://npm.im/level-browserify) to store the inflight data, making it usable both in Node and the Browser.
+* [mqtt-nedb-store](https://github.com/behrad/mqtt-nedb-store) which uses [nedb](https://www.npmjs.com/package/nedb) to store the inflight data.
+* [mqtt-localforage-store](http://npm.im/mqtt-localforage-store) which uses [localForage](http://npm.im/localforage) to store the inflight data, making it usable in the Browser without browserify.
 
 -------------------------------------------------------
 <a name="put"></a>
 ### mqtt.Store#put(packet, callback)
 
-Adds a packet to the store, a packet is
-anything that has a `messageId` property.
-The callback is called when the packet has been stored.
+将一条消息存入 store中，有 `messageId` 就可以
+回调函数在有消息存入后被调用
 
 -------------------------------------------------------
 <a name="createStream"></a>
@@ -656,15 +643,15 @@ you can then use mqtt.js in the browser with the same api than node's one.
 你的服务端（broker）应当对 websocket 连接进行相应处理 (参考 [MQTT over Websockets](https://github.com/mcollina/mosca/wiki/MQTT-over-Websockets) 以启动 [Mosca](http://mcollina.github.io/mosca/)).
 
 <a name="qos"></a>
-## About QoS
+## 关于 QoS
 
-Here is how QoS works:
+QoS 的工作机制：
 
-* QoS 0 : received **at most once** : The packet is sent, and that's it. There is no validation about whether it has been received.
-* QoS 1 : received **at least once** : The packet is sent and stored as long as the client has not received a confirmation from the server. MQTT ensures that it *will* be received, but there can be duplicates.
-* QoS 2 : received **exactly once** : Same as QoS 1 but there is no duplicates.
+* QoS 0 : 接收 **至多一次** : 对客户端是否受到不作验证，只发送一次。
+* QoS 1 : 接收 **至少一次** : 客户端若未收到服务端的确认，消息被发送后还会被存储下来。MQTT 保证消息会被收到，但肯能会重复。
+* QoS 2 : 接收 **刚好一次** : 和 QoS 1 一致，但不会重复。
 
-About data consumption, obviously, QoS 2 > QoS 1 > QoS 0, if that's a concern to you.
+如果你比较在计算消耗，明显地 QoS 2 > QoS 1 > QoS 0
 
 <a name="typescript"></a>
 ## Usage with TypeScript
